@@ -16,10 +16,10 @@ foreign lib {
 	compile :: proc(csound: ^CSOUND, argc: c.int, argv: [^]cstring) -> c.int ---
 
 	@(link_name="csoundPerformKsmps")
-	performKsmps :: proc(csound: ^CSOUND) ---
+	performKsmps :: proc(csound: ^CSOUND) -> c.int ---
 	
 	@(link_name="csoundCleanup")
-	cleanup :: proc(csound: ^CSOUND) ---
+	cleanup :: proc(csound: ^CSOUND) -> c.int ---
 
 	@(link_name="csoundDestroy")
 	destroy :: proc(csound: ^CSOUND) ---
@@ -45,5 +45,18 @@ foreign lib {
 	@(link_name="csoundCompileTree")
 	compileTree :: proc(csound: ^CSOUND, root: ^TREE) -> c.int ---
 
-	
+	@(link_name="csoundCompileTreeAsync")
+	compileTreeAsync :: proc(csound: ^CSOUND, tree: ^TREE) -> c.int ---
+
+	@(link_name="csoundDeleteTree")
+	deleteTree :: proc(csound: ^CSOUND, tree: ^TREE) ---
+
+	@(link_name="csoundCompileOrc")
+	compileOrc :: proc(csound: ^CSOUND, str: cstring) -> c.int ---
+
+	@(link_name="csoundCompileOrcAsync")
+	compileOrcAsync :: proc(csound: ^CSOUND, str: cstring) -> c.int ---
+
+	@(link_name="csoundStart")
+	start :: proc(csound: ^CSOUND) -> c.int ---
 }
