@@ -74,8 +74,9 @@ remove_enum_members = [
 //
 // You can also use `[^]`, `#by_ptr` and `#any_int` to augment an already existing type.
 procedure_type_overrides = {
-	// "SetConfigFlags.flags" = "ConfigFlags"
-	// "GetKeyPressed"        = "KeyboardKey"
+	"Compile.argv" = "[^]"
+	"RunUtility.argv" = "[^]"
+	"CompileArgs.argv" = "[^]"
 }
 
 // Add in a default value to a procedure parameter. Use `Proc_Name.parameter_name` as key and
@@ -105,15 +106,4 @@ clang_include_paths = [
 // Pass these compiler defines into clang. Can be used to control clang pre-processor
 clang_defines = {
 	// "UFBX_REAL_IS_FLOAT" = "1"
-}
-
-// These need to be fixed manually, at the moment
-procedure_type_overrides = {
-	"InitializeCscore.insco" = "FILE"
-	"InitializeCscore.outsco" = "FILE"
-	"ScoreSort.inFile" = "FILE"
-	"ScoreSort.outFile" = "FILE"
-	"ScoreExtract.inFile" = "FILE"
-	"ScoreExtract.outFile" = "FILE"
-	"ScoreExtract.extractFile" = "FILE"
 }
