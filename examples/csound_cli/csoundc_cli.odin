@@ -1,6 +1,6 @@
 package csound_cli
 
-import "../../" // Imports csound
+import "../../csound" // Imports csound
 
 import "core:os"
 import "core:strings"
