@@ -26,6 +26,9 @@ package csound
 
 import "core:c"
 
+foreign import lib "csound64.lib"
+_ :: lib
+
 /**
 * ERROR DEFINITIONS
 */
@@ -376,7 +379,7 @@ controlChannelInfo_s :: struct {
 controlChannelInfo_t :: controlChannelInfo_s
 channelCallback_t    :: proc "c" (csound: ^CSOUND, channelName: cstring, channelValuePtr: rawptr, channelType: rawptr)
 
-@(default_calling_convention="c")
+@(default_calling_convention="c", link_prefix="csound")
 foreign lib {
 	/** @defgroup INSTANTIATION Instantiation
 	*
@@ -389,12 +392,12 @@ foreign lib {
 	* Return value is zero on success, positive if initialisation was
 	* done already, and negative on error.
 	*/
-	csoundInitialize :: proc(flags: i32) -> i32 ---
+	Initialize :: proc(flags: i32) -> i32 ---
 
 	/**
 	* Sets an opcodedir override for csoundCreate()
 	*/
-	csoundSetOpcodedir :: proc(s: cstring) ---
+	SetOpcodedir :: proc(s: cstring) ---
 
 	/**
 	* Creates an instance of Csound.  Returns an opaque pointer that
@@ -403,27 +406,27 @@ foreign lib {
 	* data; this pointer can be accessed from the Csound instance
 	* that is passed to callback routines.
 	*/
-	csoundCreate :: proc(hostData: rawptr) -> ^CSOUND ---
+	Create :: proc(hostData: rawptr) -> ^CSOUND ---
 
 	/**
 	*  Loads all plugins from a given directory
 	*/
-	csoundLoadPlugins :: proc(csound: ^CSOUND, dir: cstring) -> i32 ---
+	LoadPlugins :: proc(csound: ^CSOUND, dir: cstring) -> i32 ---
 
 	/**
 	* Destroys an instance of Csound.
 	*/
-	csoundDestroy :: proc(^CSOUND) ---
+	Destroy :: proc(^CSOUND) ---
 
 	/**
 	* Returns the version number times 1000 (5.00.0 = 5000).
 	*/
-	csoundGetVersion :: proc() -> i32 ---
+	GetVersion :: proc() -> i32 ---
 
 	/**
 	* Returns the API version number times 100 (1.00 = 100).
 	*/
-	csoundGetAPIVersion :: proc() -> i32 ---
+	GetAPIVersion :: proc() -> i32 ---
 
 	/** @defgroup PERFORMANCE Performance
 	*
@@ -432,25 +435,25 @@ foreign lib {
 	* Parse the given orchestra from an ASCII string into a TREE.
 	* This can be called during performance to parse new code.
 	*/
-	csoundParseOrc :: proc(csound: ^CSOUND, str: cstring) -> ^TREE ---
+	ParseOrc :: proc(csound: ^CSOUND, str: cstring) -> ^TREE ---
 
 	/**
 	* Compile the given TREE node into structs for Csound to use
 	* this can be called during performance to compile a new TREE
 	*/
-	csoundCompileTree :: proc(csound: ^CSOUND, root: ^TREE) -> i32 ---
+	CompileTree :: proc(csound: ^CSOUND, root: ^TREE) -> i32 ---
 
 	/**
 	* Asynchronous version of csoundCompileTree()
 	*/
-	csoundCompileTreeAsync :: proc(csound: ^CSOUND, root: ^TREE) -> i32 ---
+	CompileTreeAsync :: proc(csound: ^CSOUND, root: ^TREE) -> i32 ---
 
 	/**
 	* Free the resources associated with the TREE *tree
 	* This function should be called whenever the TREE was
 	* created with csoundParseOrc and memory can be deallocated.
 	**/
-	csoundDeleteTree :: proc(csound: ^CSOUND, tree: ^TREE) ---
+	DeleteTree :: proc(csound: ^CSOUND, tree: ^TREE) ---
 
 	/**
 	* Parse, and compile the given orchestra from an ASCII string,
@@ -461,7 +464,7 @@ foreign lib {
 	*       csoundCompileOrc(csound, orc);
 	* /endcode
 	*/
-	csoundCompileOrc :: proc(csound: ^CSOUND, str: cstring) -> i32 ---
+	CompileOrc :: proc(csound: ^CSOUND, str: cstring) -> i32 ---
 
 	/**
 	*  Async version of csoundCompileOrc(). The code is parsed and
@@ -469,7 +472,7 @@ foreign lib {
 	*  asynchronous merge into the running engine, and evaluation.
 	*  The function returns following parsing and compilation.
 	*/
-	csoundCompileOrcAsync :: proc(csound: ^CSOUND, str: cstring) -> i32 ---
+	CompileOrcAsync :: proc(csound: ^CSOUND, str: cstring) -> i32 ---
 
 	/**
 	*   Parse and compile an orchestra given on an string,
@@ -481,7 +484,7 @@ foreign lib {
 	*       MYFLT retval = csoundEvalCode(csound, code);
 	* /endcode
 	*/
-	csoundEvalCode :: proc(csound: ^CSOUND, str: cstring) -> i32 ---
+	EvalCode :: proc(csound: ^CSOUND, str: cstring) -> i32 ---
 
 	/**
 	* Prepares an instance of Csound for Cscore
@@ -495,13 +498,13 @@ foreign lib {
 	* It returns CSOUND_SUCCESS on success and CSOUND_INITIALIZATION or other
 	* error code if it fails.
 	*/
-	csoundInitializeCscore :: proc(_: ^CSOUND, insco: ^FILE, outsco: ^FILE) -> i32 ---
+	InitializeCscore :: proc(_: ^CSOUND, insco: ^FILE, outsco: ^FILE) -> i32 ---
 
 	/**
 	*  Read arguments, parse and compile an orchestra, read, process and
 	*  load a score.
 	*/
-	csoundCompileArgs :: proc(_: ^CSOUND, argc: i32, argv: ^cstring) -> i32 ---
+	CompileArgs :: proc(_: ^CSOUND, argc: i32, argv: ^cstring) -> i32 ---
 
 	/**
 	* Prepares Csound for performance. Normally called after compiling
@@ -513,7 +516,7 @@ foreign lib {
 	* as real-time events, the <CsOptions> tag is ignored, and performance
 	* continues indefinitely or until ended using the API.
 	*/
-	csoundStart :: proc(csound: ^CSOUND) -> i32 ---
+	Start :: proc(csound: ^CSOUND) -> i32 ---
 
 	/**
 	* Compiles Csound input files (such as an orchestra and score, or CSD)
@@ -531,7 +534,7 @@ foreign lib {
 	*  Calls csoundStart() internally.
 	*  Can only be called again after reset (see csoundReset())
 	*/
-	csoundCompile :: proc(_: ^CSOUND, argc: i32, argv: ^cstring) -> i32 ---
+	Compile :: proc(_: ^CSOUND, argc: i32, argv: ^cstring) -> i32 ---
 
 	/**
 	* Compiles a Csound input file (CSD, .csd file), but does not perform it.
@@ -584,7 +587,7 @@ foreign lib {
 	* \endcode
 	*
 	*/
-	csoundCompileCsd :: proc(csound: ^CSOUND, csd_filename: cstring) -> i32 ---
+	CompileCsd :: proc(csound: ^CSOUND, csd_filename: cstring) -> i32 ---
 
 	/**
 	* Behaves the same way as csoundCompileCsd, except that the content
@@ -592,7 +595,7 @@ foreign lib {
 	* This is convenient when it is desirable to package the csd as part of
 	* an application or a multi-language piece.
 	*/
-	csoundCompileCsdText :: proc(csound: ^CSOUND, csd_text: cstring) -> i32 ---
+	CompileCsdText :: proc(csound: ^CSOUND, csd_text: cstring) -> i32 ---
 
 	/**
 	* Senses input events and performs audio output until the end of score
@@ -605,7 +608,7 @@ foreign lib {
 	* to continue the stopped performance. Otherwise, csoundReset() should be
 	* called to clean up after the finished or failed performance.
 	*/
-	csoundPerform :: proc(^CSOUND) -> i32 ---
+	Perform :: proc(^CSOUND) -> i32 ---
 
 	/**
 	* Senses input events, and performs one control sample worth (ksmps) of
@@ -617,7 +620,7 @@ foreign lib {
 	* Enables external software to control the execution of Csound,
 	* and to synchronize performance with audio input and output.
 	*/
-	csoundPerformKsmps :: proc(^CSOUND) -> i32 ---
+	PerformKsmps :: proc(^CSOUND) -> i32 ---
 
 	/**
 	* Performs Csound, sensing real-time and score events
@@ -627,14 +630,14 @@ foreign lib {
 	* to csound's I/O buffers.
 	* Returns false during performance, and true when performance is finished.
 	*/
-	csoundPerformBuffer :: proc(^CSOUND) -> i32 ---
+	PerformBuffer :: proc(^CSOUND) -> i32 ---
 
 	/**
 	* Stops a csoundPerform() running in another thread. Note that it is
 	* not guaranteed that csoundPerform() has already stopped when this
 	* function returns.
 	*/
-	csoundStop :: proc(^CSOUND) ---
+	Stop :: proc(^CSOUND) ---
 
 	/**
 	* Prints information about the end of a performance, and closes audio
@@ -642,32 +645,32 @@ foreign lib {
 	* Note: after calling csoundCleanup(), the operation of the perform
 	* functions is undefined.
 	*/
-	csoundCleanup :: proc(^CSOUND) -> i32 ---
+	Cleanup :: proc(^CSOUND) -> i32 ---
 
 	/**
 	* Resets all internal memory and state in preparation for a new performance.
 	* Enables external software to run successive Csound performances
 	* without reloading Csound. Implies csoundCleanup(), unless already called.
 	*/
-	csoundReset :: proc(^CSOUND) ---
+	Reset :: proc(^CSOUND) ---
 
 	/**
 	* Starts the UDP server on a supplied port number
 	* returns CSOUND_SUCCESS if server has been started successfully,
 	* otherwise, CSOUND_ERROR.
 	*/
-	csoundUDPServerStart :: proc(csound: ^CSOUND, port: u32) -> i32 ---
+	UDPServerStart :: proc(csound: ^CSOUND, port: u32) -> i32 ---
 
 	/** returns the port number on which the server is running, or
 	*  CSOUND_ERROR if the server is not running.
 	*/
-	csoundUDPServerStatus :: proc(csound: ^CSOUND) -> i32 ---
+	UDPServerStatus :: proc(csound: ^CSOUND) -> i32 ---
 
 	/**
 	* Closes the UDP server, returning CSOUND_SUCCESS if the
 	* running server was successfully closed, CSOUND_ERROR otherwise.
 	*/
-	csoundUDPServerClose :: proc(csound: ^CSOUND) -> i32 ---
+	UDPServerClose :: proc(csound: ^CSOUND) -> i32 ---
 
 	/**
 	* Turns on the transmission of console messages to UDP on address addr
@@ -677,76 +680,76 @@ foreign lib {
 	* returns CSOUND_SUCCESS or CSOUND_ERROR if the UDP transmission
 	* could not be set up.
 	*/
-	csoundUDPConsole :: proc(csound: ^CSOUND, addr: cstring, port: i32, mirror: i32) -> i32 ---
+	UDPConsole :: proc(csound: ^CSOUND, addr: cstring, port: i32, mirror: i32) -> i32 ---
 
 	/**
 	* Stop transmitting console messages via UDP
 	*/
-	csoundStopUDPConsole :: proc(csound: ^CSOUND) ---
+	StopUDPConsole :: proc(csound: ^CSOUND) ---
 
 	/**
 	* Returns the number of audio sample frames per second.
 	*/
-	csoundGetSr :: proc(^CSOUND) -> i32 ---
+	GetSr :: proc(^CSOUND) -> i32 ---
 
 	/**
 	* Returns the number of control samples per second.
 	*/
-	csoundGetKr :: proc(^CSOUND) -> i32 ---
+	GetKr :: proc(^CSOUND) -> i32 ---
 
 	/**
 	* Returns the number of audio sample frames per control sample.
 	*/
-	csoundGetKsmps :: proc(^CSOUND) -> i32 ---
+	GetKsmps :: proc(^CSOUND) -> i32 ---
 
 	/**
 	* Returns the number of audio output channels. Set through the nchnls
 	* header variable in the csd file.
 	*/
-	csoundGetNchnls :: proc(^CSOUND) -> i32 ---
+	GetNchnls :: proc(^CSOUND) -> i32 ---
 
 	/**
 	* Returns the number of audio input channels. Set through the
 	* nchnls_i header variable in the csd file. If this variable is
 	* not set, the value is taken from nchnls.
 	*/
-	csoundGetNchnlsInput :: proc(csound: ^CSOUND) -> i32 ---
+	GetNchnlsInput :: proc(csound: ^CSOUND) -> i32 ---
 
 	/**
 	* Returns the 0dBFS level of the spin/spout buffers.
 	*/
-	csoundGet0dBFS :: proc(^CSOUND) -> i32 ---
+	Get0dBFS :: proc(^CSOUND) -> i32 ---
 
 	/**
 	* Returns the A4 frequency reference
 	*/
-	csoundGetA4 :: proc(^CSOUND) -> i32 ---
+	GetA4 :: proc(^CSOUND) -> i32 ---
 
 	/**
 	* Return the current performance time in samples
 	*/
-	csoundGetCurrentTimeSamples :: proc(csound: ^CSOUND) -> i32 ---
+	GetCurrentTimeSamples :: proc(csound: ^CSOUND) -> i32 ---
 
 	/**
 	* Return the size of MYFLT in bytes.
 	*/
-	csoundGetSizeOfMYFLT :: proc() -> i32 ---
+	GetSizeOfMYFLT :: proc() -> i32 ---
 
 	/**
 	* Returns host data.
 	*/
-	csoundGetHostData :: proc(^CSOUND) -> rawptr ---
+	GetHostData :: proc(^CSOUND) -> rawptr ---
 
 	/**
 	* Sets host data.
 	*/
-	csoundSetHostData :: proc(_: ^CSOUND, hostData: rawptr) ---
+	SetHostData :: proc(_: ^CSOUND, hostData: rawptr) ---
 
 	/**
 	* Set a single csound option (flag). Returns CSOUND_SUCCESS on success.
 	* NB: blank spaces are not allowed
 	*/
-	csoundSetOption :: proc(csound: ^CSOUND, option: cstring) -> i32 ---
+	SetOption :: proc(csound: ^CSOUND, option: cstring) -> i32 ---
 
 	/**
 	*  Configure Csound with a given set of parameters defined in
@@ -755,41 +758,41 @@ foreign lib {
 	*  The CSOUND_PARAMS structure can be obtained using csoundGetParams().
 	*  These options should only be changed before performance has started.
 	*/
-	csoundSetParams :: proc(csound: ^CSOUND, p: ^CSOUND_PARAMS) ---
+	SetParams :: proc(csound: ^CSOUND, p: ^CSOUND_PARAMS) ---
 
 	/**
 	*  Get the current set of parameters from a CSOUND instance in
 	*  a CSOUND_PARAMS structure. See csoundSetParams().
 	*/
-	csoundGetParams :: proc(csound: ^CSOUND, p: ^CSOUND_PARAMS) ---
+	GetParams :: proc(csound: ^CSOUND, p: ^CSOUND_PARAMS) ---
 
 	/**
 	* Returns whether Csound is set to print debug messages sent through the
 	* DebugMsg() internal API function. Anything different to 0 means true.
 	*/
-	csoundGetDebug :: proc(^CSOUND) -> i32 ---
+	GetDebug :: proc(^CSOUND) -> i32 ---
 
 	/**
 	* Sets whether Csound prints debug messages from the DebugMsg() internal
 	* API function. Anything different to 0 means true.
 	*/
-	csoundSetDebug :: proc(_: ^CSOUND, debug: i32) ---
+	SetDebug :: proc(_: ^CSOUND, debug: i32) ---
 
 	/**
 	* If val > 0, sets the internal variable holding the system HW sr.
 	* Returns the stored value containing the system HW sr.
 	*/
-	csoundSystemSr :: proc(csound: ^CSOUND, val: i32) -> i32 ---
+	SystemSr :: proc(csound: ^CSOUND, val: i32) -> i32 ---
 
 	/**
 	* Returns the audio output name (-o).
 	*/
-	csoundGetOutputName :: proc(^CSOUND) -> cstring ---
+	GetOutputName :: proc(^CSOUND) -> cstring ---
 
 	/**
 	* Returns the audio input name (-i).
 	*/
-	csoundGetInputName :: proc(^CSOUND) -> cstring ---
+	GetInputName :: proc(^CSOUND) -> cstring ---
 
 	/**
 	*  Set output destination, type and format
@@ -802,7 +805,7 @@ foreign lib {
 	*   For RT audio, use device_id from CS_AUDIODEVICE for a given audio device.
 	*
 	*/
-	csoundSetOutput :: proc(csound: ^CSOUND, name: cstring, type: cstring, format: cstring) ---
+	SetOutput :: proc(csound: ^CSOUND, name: cstring, type: cstring, format: cstring) ---
 
 	/**
 	*  Get output type and format.
@@ -811,32 +814,32 @@ foreign lib {
 	*  On return, these will hold the current values for
 	*  these parameters.
 	*/
-	csoundGetOutputFormat :: proc(csound: ^CSOUND, type: cstring, format: cstring) ---
+	GetOutputFormat :: proc(csound: ^CSOUND, type: cstring, format: cstring) ---
 
 	/**
 	*  Set input source
 	*/
-	csoundSetInput :: proc(csound: ^CSOUND, name: cstring) ---
+	SetInput :: proc(csound: ^CSOUND, name: cstring) ---
 
 	/**
 	*  Set MIDI input device name/number
 	*/
-	csoundSetMIDIInput :: proc(csound: ^CSOUND, name: cstring) ---
+	SetMIDIInput :: proc(csound: ^CSOUND, name: cstring) ---
 
 	/**
 	*  Set MIDI file input name
 	*/
-	csoundSetMIDIFileInput :: proc(csound: ^CSOUND, name: cstring) ---
+	SetMIDIFileInput :: proc(csound: ^CSOUND, name: cstring) ---
 
 	/**
 	*  Set MIDI output device name/number
 	*/
-	csoundSetMIDIOutput :: proc(csound: ^CSOUND, name: cstring) ---
+	SetMIDIOutput :: proc(csound: ^CSOUND, name: cstring) ---
 
 	/**
 	*  Set MIDI file utput name
 	*/
-	csoundSetMIDIFileOutput :: proc(csound: ^CSOUND, name: cstring) ---
+	SetMIDIFileOutput :: proc(csound: ^CSOUND, name: cstring) ---
 
 	/**
 	* Sets an external callback for receiving notices whenever Csound opens
@@ -850,12 +853,12 @@ foreign lib {
 	* Pass NULL to disable the callback.
 	* This callback is retained after a csoundReset() call.
 	*/
-	csoundSetFileOpenCallback :: proc(p: ^CSOUND, func: proc "c" (^CSOUND, cstring, i32, i32, i32)) ---
+	SetFileOpenCallback :: proc(p: ^CSOUND, func: proc "c" (^CSOUND, cstring, i32, i32, i32)) ---
 
 	/**
 	*  Sets the current RT audio module
 	*/
-	csoundSetRTAudioModule :: proc(csound: ^CSOUND, module: cstring) ---
+	SetRTAudioModule :: proc(csound: ^CSOUND, module: cstring) ---
 
 	/**
 	* retrieves a module name and type ("audio" or "midi") given a
@@ -870,43 +873,43 @@ foreign lib {
 	*       printf("Module %d:  %s (%s) \n", n, name, type);
 	* \endcode
 	*/
-	csoundGetModule :: proc(csound: ^CSOUND, number: i32, name: ^cstring, type: ^cstring) -> i32 ---
+	GetModule :: proc(csound: ^CSOUND, number: i32, name: ^cstring, type: ^cstring) -> i32 ---
 
 	/**
 	* Returns the number of samples in Csound's input buffer.
 	*/
-	csoundGetInputBufferSize :: proc(^CSOUND) -> c.long ---
+	GetInputBufferSize :: proc(^CSOUND) -> c.long ---
 
 	/**
 	* Returns the number of samples in Csound's output buffer.
 	*/
-	csoundGetOutputBufferSize :: proc(^CSOUND) -> c.long ---
+	GetOutputBufferSize :: proc(^CSOUND) -> c.long ---
 
 	/**
 	* Returns the address of the Csound audio input buffer.
 	* Enables external software to write audio into Csound before calling
 	* csoundPerformBuffer.
 	*/
-	csoundGetInputBuffer :: proc(^CSOUND) -> ^i32 ---
+	GetInputBuffer :: proc(^CSOUND) -> ^i32 ---
 
 	/**
 	* Returns the address of the Csound audio output buffer.
 	* Enables external software to read audio from Csound after calling
 	* csoundPerformBuffer.
 	*/
-	csoundGetOutputBuffer :: proc(^CSOUND) -> ^i32 ---
+	GetOutputBuffer :: proc(^CSOUND) -> ^i32 ---
 
 	/**
 	* Returns the address of the Csound audio input working buffer (spin).
 	* Enables external software to write audio into Csound before calling
 	* csoundPerformKsmps.
 	*/
-	csoundGetSpin :: proc(^CSOUND) -> ^i32 ---
+	GetSpin :: proc(^CSOUND) -> ^i32 ---
 
 	/**
 	* Clears the input buffer (spin).
 	*/
-	csoundClearSpin :: proc(^CSOUND) ---
+	ClearSpin :: proc(^CSOUND) ---
 
 	/**
 	* Adds the indicated sample into the audio input working buffer (spin);
@@ -915,21 +918,21 @@ foreign lib {
 	* NB: the spin buffer needs to be cleared at every k-cycle by calling
 	* csoundClearSpinBuffer().
 	*/
-	csoundAddSpinSample :: proc(csound: ^CSOUND, frame: i32, channel: i32, sample: i32) ---
+	AddSpinSample :: proc(csound: ^CSOUND, frame: i32, channel: i32, sample: i32) ---
 
 	/**
 	* Sets the audio input working buffer (spin) to the indicated sample
 	* this only ever makes sense before calling csoundPerformKsmps().
 	* The frame and channel must be in bounds relative to ksmps and nchnls.
 	*/
-	csoundSetSpinSample :: proc(csound: ^CSOUND, frame: i32, channel: i32, sample: i32) ---
+	SetSpinSample :: proc(csound: ^CSOUND, frame: i32, channel: i32, sample: i32) ---
 
 	/**
 	* Returns the address of the Csound audio output working buffer (spout).
 	* Enables external software to read audio from Csound after calling
 	* csoundPerformKsmps.
 	*/
-	csoundGetSpout :: proc(csound: ^CSOUND) -> ^i32 ---
+	GetSpout :: proc(csound: ^CSOUND) -> ^i32 ---
 
 	/**
 	* Returns the indicated sample from the Csound audio output
@@ -937,17 +940,17 @@ foreign lib {
 	* csoundPerformKsmps().  The frame and channel must be in bounds
 	* relative to ksmps and nchnls.
 	*/
-	csoundGetSpoutSample :: proc(csound: ^CSOUND, frame: i32, channel: i32) -> i32 ---
+	GetSpoutSample :: proc(csound: ^CSOUND, frame: i32, channel: i32) -> i32 ---
 
 	/**
 	* Return pointer to user data pointer for real time audio input.
 	*/
-	csoundGetRtRecordUserData :: proc(^CSOUND) -> ^rawptr ---
+	GetRtRecordUserData :: proc(^CSOUND) -> ^rawptr ---
 
 	/**
 	* Return pointer to user data pointer for real time audio output.
 	*/
-	csoundGetRtPlayUserData :: proc(^CSOUND) -> ^rawptr ---
+	GetRtPlayUserData :: proc(^CSOUND) -> ^rawptr ---
 
 	/**
 	* Calling this function with a non-zero 'state' value between
@@ -959,7 +962,7 @@ foreign lib {
 	* set to the integer multiple of ksmps that is nearest to the value
 	* specified.
 	*/
-	csoundSetHostImplementedAudioIO :: proc(_: ^CSOUND, state: i32, bufSize: i32) ---
+	SetHostImplementedAudioIO :: proc(_: ^CSOUND, state: i32, bufSize: i32) ---
 
 	/**
 	* This function can be called to obtain a list of available
@@ -984,55 +987,55 @@ foreign lib {
 	*   free(devs);
 	* \endcode
 	*/
-	csoundGetAudioDevList :: proc(csound: ^CSOUND, list: ^CS_AUDIODEVICE, isOutput: i32) -> i32 ---
+	GetAudioDevList :: proc(csound: ^CSOUND, list: ^CS_AUDIODEVICE, isOutput: i32) -> i32 ---
 
 	/**
 	* Sets a function to be called by Csound for opening real-time
 	* audio playback.
 	*/
-	csoundSetPlayopenCallback :: proc(_: ^CSOUND, playopen__: proc "c" (_: ^CSOUND, parm: ^csRtAudioParams) -> i32) ---
+	SetPlayopenCallback :: proc(_: ^CSOUND, playopen__: proc "c" (_: ^CSOUND, parm: ^csRtAudioParams) -> i32) ---
 
 	/**
 	* Sets a function to be called by Csound for performing real-time
 	* audio playback.
 	*/
-	csoundSetRtplayCallback :: proc(_: ^CSOUND, rtplay__: proc "c" (_: ^CSOUND, outBuf: ^i32, nbytes: i32)) ---
+	SetRtplayCallback :: proc(_: ^CSOUND, rtplay__: proc "c" (_: ^CSOUND, outBuf: ^i32, nbytes: i32)) ---
 
 	/**
 	* Sets a function to be called by Csound for opening real-time
 	* audio recording.
 	*/
-	csoundSetRecopenCallback :: proc(_: ^CSOUND, recopen_: proc "c" (_: ^CSOUND, parm: ^csRtAudioParams) -> i32) ---
+	SetRecopenCallback :: proc(_: ^CSOUND, recopen_: proc "c" (_: ^CSOUND, parm: ^csRtAudioParams) -> i32) ---
 
 	/**
 	* Sets a function to be called by Csound for performing real-time
 	* audio recording.
 	*/
-	csoundSetRtrecordCallback :: proc(_: ^CSOUND, rtrecord__: proc "c" (_: ^CSOUND, inBuf: ^i32, nbytes: i32) -> i32) ---
+	SetRtrecordCallback :: proc(_: ^CSOUND, rtrecord__: proc "c" (_: ^CSOUND, inBuf: ^i32, nbytes: i32) -> i32) ---
 
 	/**
 	* Sets a function to be called by Csound for closing real-time
 	* audio playback and recording.
 	*/
-	csoundSetRtcloseCallback :: proc(_: ^CSOUND, rtclose__: proc "c" (^CSOUND)) ---
+	SetRtcloseCallback :: proc(_: ^CSOUND, rtclose__: proc "c" (^CSOUND)) ---
 
 	/**
 	* Sets a function that is called to obtain a list of audio devices.
 	* This should be set by rtaudio modules and should not be set by hosts.
 	* (See csoundGetAudioDevList())
 	*/
-	csoundSetAudioDeviceListCallback :: proc(csound: ^CSOUND, audiodevlist__: proc "c" (_: ^CSOUND, list: ^CS_AUDIODEVICE, isOutput: i32) -> i32) ---
+	SetAudioDeviceListCallback :: proc(csound: ^CSOUND, audiodevlist__: proc "c" (_: ^CSOUND, list: ^CS_AUDIODEVICE, isOutput: i32) -> i32) ---
 
 	/**
 	*  Sets the current MIDI IO module
 	*/
-	csoundSetMIDIModule :: proc(csound: ^CSOUND, module: cstring) ---
+	SetMIDIModule :: proc(csound: ^CSOUND, module: cstring) ---
 
 	/**
 	* call this function with state 1 if the host is implementing
 	* MIDI via the callbacks below.
 	*/
-	csoundSetHostImplementedMIDIIO :: proc(csound: ^CSOUND, state: i32) ---
+	SetHostImplementedMIDIIO :: proc(csound: ^CSOUND, state: i32) ---
 
 	/**
 	* This function can be called to obtain a list of available
@@ -1046,73 +1049,73 @@ foreign lib {
 	* device information structure, pass an array of CS_MIDIDEVICE
 	* structs to be filled. (see also csoundGetAudioDevList())
 	*/
-	csoundGetMIDIDevList :: proc(csound: ^CSOUND, list: ^CS_MIDIDEVICE, isOutput: i32) -> i32 ---
+	GetMIDIDevList :: proc(csound: ^CSOUND, list: ^CS_MIDIDEVICE, isOutput: i32) -> i32 ---
 
 	/**
 	* Sets callback for opening real time MIDI input.
 	*/
-	csoundSetExternalMidiInOpenCallback :: proc(_: ^CSOUND, func: proc "c" (_: ^CSOUND, userData: ^rawptr, devName: cstring) -> i32) ---
+	SetExternalMidiInOpenCallback :: proc(_: ^CSOUND, func: proc "c" (_: ^CSOUND, userData: ^rawptr, devName: cstring) -> i32) ---
 
 	/**
 	* Sets callback for reading from real time MIDI input.
 	*/
-	csoundSetExternalMidiReadCallback :: proc(_: ^CSOUND, func: proc "c" (_: ^CSOUND, userData: rawptr, buf: ^u8, nBytes: i32) -> i32) ---
+	SetExternalMidiReadCallback :: proc(_: ^CSOUND, func: proc "c" (_: ^CSOUND, userData: rawptr, buf: ^u8, nBytes: i32) -> i32) ---
 
 	/**
 	* Sets callback for closing real time MIDI input.
 	*/
-	csoundSetExternalMidiInCloseCallback :: proc(_: ^CSOUND, func: proc "c" (_: ^CSOUND, userData: rawptr) -> i32) ---
+	SetExternalMidiInCloseCallback :: proc(_: ^CSOUND, func: proc "c" (_: ^CSOUND, userData: rawptr) -> i32) ---
 
 	/**
 	* Sets callback for opening real time MIDI output.
 	*/
-	csoundSetExternalMidiOutOpenCallback :: proc(_: ^CSOUND, func: proc "c" (_: ^CSOUND, userData: ^rawptr, devName: cstring) -> i32) ---
+	SetExternalMidiOutOpenCallback :: proc(_: ^CSOUND, func: proc "c" (_: ^CSOUND, userData: ^rawptr, devName: cstring) -> i32) ---
 
 	/**
 	* Sets callback for writing to real time MIDI output.
 	*/
-	csoundSetExternalMidiWriteCallback :: proc(_: ^CSOUND, func: proc "c" (_: ^CSOUND, userData: rawptr, buf: ^u8, nBytes: i32) -> i32) ---
+	SetExternalMidiWriteCallback :: proc(_: ^CSOUND, func: proc "c" (_: ^CSOUND, userData: rawptr, buf: ^u8, nBytes: i32) -> i32) ---
 
 	/**
 	* Sets callback for closing real time MIDI output.
 	*/
-	csoundSetExternalMidiOutCloseCallback :: proc(_: ^CSOUND, func: proc "c" (_: ^CSOUND, userData: rawptr) -> i32) ---
+	SetExternalMidiOutCloseCallback :: proc(_: ^CSOUND, func: proc "c" (_: ^CSOUND, userData: rawptr) -> i32) ---
 
 	/**
 	* Sets callback for converting MIDI error codes to strings.
 	*/
-	csoundSetExternalMidiErrorStringCallback :: proc(_: ^CSOUND, func: proc "c" (i32) -> cstring) ---
+	SetExternalMidiErrorStringCallback :: proc(_: ^CSOUND, func: proc "c" (i32) -> cstring) ---
 
 	/**
 	* Sets a function that is called to obtain a list of MIDI devices.
 	* This should be set by IO plugins, and should not be used by hosts.
 	* (See csoundGetMIDIDevList())
 	*/
-	csoundSetMIDIDeviceListCallback :: proc(csound: ^CSOUND, mididevlist__: proc "c" (_: ^CSOUND, list: ^CS_MIDIDEVICE, isOutput: i32) -> i32) ---
+	SetMIDIDeviceListCallback :: proc(csound: ^CSOUND, mididevlist__: proc "c" (_: ^CSOUND, list: ^CS_MIDIDEVICE, isOutput: i32) -> i32) ---
 
 	/**
 	*  Read, preprocess, and load a score from an ASCII string
 	*  It can be called repeatedly, with the new score events
 	*  being added to the currently scheduled ones.
 	*/
-	csoundReadScore :: proc(csound: ^CSOUND, str: cstring) -> i32 ---
+	ReadScore :: proc(csound: ^CSOUND, str: cstring) -> i32 ---
 
 	/**
 	*  Asynchronous version of csoundReadScore().
 	*/
-	csoundReadScoreAsync :: proc(csound: ^CSOUND, str: cstring) ---
+	ReadScoreAsync :: proc(csound: ^CSOUND, str: cstring) ---
 
 	/**
 	* Returns the current score time in seconds
 	* since the beginning of performance.
 	*/
-	csoundGetScoreTime :: proc(^CSOUND) -> f64 ---
+	GetScoreTime :: proc(^CSOUND) -> f64 ---
 
 	/**
 	* Sets whether Csound score events are performed or not, independently
 	* of real-time MIDI events (see csoundSetScorePending()).
 	*/
-	csoundIsScorePending :: proc(^CSOUND) -> i32 ---
+	IsScorePending :: proc(^CSOUND) -> i32 ---
 
 	/**
 	* Sets whether Csound score events are performed or not (real-time
@@ -1122,13 +1125,13 @@ foreign lib {
 	* mute a Csound score while working on other tracks of a piece, or
 	* to play the Csound instruments live.
 	*/
-	csoundSetScorePending :: proc(_: ^CSOUND, pending: i32) ---
+	SetScorePending :: proc(_: ^CSOUND, pending: i32) ---
 
 	/**
 	* Returns the score time beginning at which score events will
 	* actually immediately be performed (see csoundSetScoreOffsetSeconds()).
 	*/
-	csoundGetScoreOffsetSeconds :: proc(^CSOUND) -> i32 ---
+	GetScoreOffsetSeconds :: proc(^CSOUND) -> i32 ---
 
 	/**
 	* Csound score events prior to the specified time are not performed, and
@@ -1139,13 +1142,13 @@ foreign lib {
 	* for example to repeat a loop in a sequencer, or to synchronize
 	* other events with the Csound score.
 	*/
-	csoundSetScoreOffsetSeconds :: proc(_: ^CSOUND, time: i32) ---
+	SetScoreOffsetSeconds :: proc(_: ^CSOUND, time: i32) ---
 
 	/**
 	* Rewinds a compiled Csound score to the time specified with
 	* csoundSetScoreOffsetSeconds().
 	*/
-	csoundRewindScore :: proc(^CSOUND) ---
+	RewindScore :: proc(^CSOUND) ---
 
 	/**
 	* Sets an external callback for Cscore processing.
@@ -1153,7 +1156,7 @@ foreign lib {
 	* (which does nothing).
 	* This callback is retained after a csoundReset() call.
 	*/
-	csoundSetCscoreCallback :: proc(_: ^CSOUND, cscoreCallback_: proc "c" (^CSOUND)) ---
+	SetCscoreCallback :: proc(_: ^CSOUND, cscoreCallback_: proc "c" (^CSOUND)) ---
 
 	/**
 	* Sorts score file 'inFile' and writes the result to 'outFile'.
@@ -1161,7 +1164,7 @@ foreign lib {
 	* before calling this function, and csoundReset() should be called
 	* after sorting the score to clean up. On success, zero is returned.
 	*/
-	csoundScoreSort :: proc(_: ^CSOUND, inFile: ^FILE, outFile: ^FILE) -> i32 ---
+	ScoreSort :: proc(_: ^CSOUND, inFile: ^FILE, outFile: ^FILE) -> i32 ---
 
 	/**
 	* Extracts from 'inFile', controlled by 'extractFile', and writes
@@ -1170,27 +1173,27 @@ foreign lib {
 	* should be called after score extraction to clean up.
 	* The return value is zero on success.
 	*/
-	csoundScoreExtract :: proc(_: ^CSOUND, inFile: ^FILE, outFile: ^FILE, extractFile: ^FILE) -> i32 ---
+	ScoreExtract :: proc(_: ^CSOUND, inFile: ^FILE, outFile: ^FILE, extractFile: ^FILE) -> i32 ---
 
 	/**
 	* Displays an informational message.
 	*/
-	csoundMessage :: proc(_: ^CSOUND, format: cstring, #c_vararg _: ..any) -> i32 ---
+	Message :: proc(_: ^CSOUND, format: cstring, #c_vararg _: ..any) -> i32 ---
 
 	/**
 	* Print message with special attributes (see msg_attr.h for the list of
 	* available attributes). With attr=0, csoundMessageS() is identical to
 	* csoundMessage().
 	*/
-	csoundMessageS                  :: proc(_: ^CSOUND, attr: i32, format: cstring, #c_vararg _: ..any) -> i32 ---
-	csoundMessageV                  :: proc(_: ^CSOUND, attr: i32, format: cstring, args: c.va_list) ---
-	csoundSetDefaultMessageCallback :: proc(csoundMessageCallback_: proc "c" (_: ^CSOUND, attr: i32, format: cstring, valist: c.va_list)) ---
+	MessageS                  :: proc(_: ^CSOUND, attr: i32, format: cstring, #c_vararg _: ..any) -> i32 ---
+	MessageV                  :: proc(_: ^CSOUND, attr: i32, format: cstring, args: c.va_list) ---
+	SetDefaultMessageCallback :: proc(csoundMessageCallback_: proc "c" (_: ^CSOUND, attr: i32, format: cstring, valist: c.va_list)) ---
 
 	/**
 	* Sets a function to be called by Csound to print an informational message.
 	* This callback is never called on --realtime mode
 	*/
-	csoundSetMessageCallback :: proc(_: ^CSOUND, csoundMessageCallback_: proc "c" (_: ^CSOUND, attr: i32, format: cstring, valist: c.va_list)) ---
+	SetMessageCallback :: proc(_: ^CSOUND, csoundMessageCallback_: proc "c" (_: ^CSOUND, attr: i32, format: cstring, valist: c.va_list)) ---
 
 	/**
 	* Sets an alternative function to be called by Csound to print an
@@ -1198,17 +1201,17 @@ foreign lib {
 	*  This callback can be set for --realtime mode.
 	*  This callback is cleared after csoundReset
 	*/
-	csoundSetMessageStringCallback :: proc(csound: ^CSOUND, csoundMessageStrCallback: proc "c" (csound: ^CSOUND, attr: i32, str: cstring)) ---
+	SetMessageStringCallback :: proc(csound: ^CSOUND, csoundMessageStrCallback: proc "c" (csound: ^CSOUND, attr: i32, str: cstring)) ---
 
 	/**
 	* Returns the Csound message level (from 0 to 231).
 	*/
-	csoundGetMessageLevel :: proc(^CSOUND) -> i32 ---
+	GetMessageLevel :: proc(^CSOUND) -> i32 ---
 
 	/**
 	* Sets the Csound message level (from 0 to 231).
 	*/
-	csoundSetMessageLevel :: proc(_: ^CSOUND, messageLevel: i32) ---
+	SetMessageLevel :: proc(_: ^CSOUND, messageLevel: i32) ---
 
 	/**
 	* Creates a buffer for storing messages printed by Csound.
@@ -1224,33 +1227,33 @@ foreign lib {
 	* csoundSetMessageCallback should not be called after creating the
 	* message buffer.
 	*/
-	csoundCreateMessageBuffer :: proc(csound: ^CSOUND, toStdOut: i32) ---
+	CreateMessageBuffer :: proc(csound: ^CSOUND, toStdOut: i32) ---
 
 	/**
 	* Returns the first message from the buffer.
 	*/
-	csoundGetFirstMessage :: proc(csound: ^CSOUND) -> cstring ---
+	GetFirstMessage :: proc(csound: ^CSOUND) -> cstring ---
 
 	/**
 	* Returns the attribute parameter (see msg_attr.h) of the first message
 	* in the buffer.
 	*/
-	csoundGetFirstMessageAttr :: proc(csound: ^CSOUND) -> i32 ---
+	GetFirstMessageAttr :: proc(csound: ^CSOUND) -> i32 ---
 
 	/**
 	* Removes the first message from the buffer.
 	*/
-	csoundPopFirstMessage :: proc(csound: ^CSOUND) ---
+	PopFirstMessage :: proc(csound: ^CSOUND) ---
 
 	/**
 	* Returns the number of pending messages in the buffer.
 	*/
-	csoundGetMessageCnt :: proc(csound: ^CSOUND) -> i32 ---
+	GetMessageCnt :: proc(csound: ^CSOUND) -> i32 ---
 
 	/**
 	* Releases all memory used by the message buffer.
 	*/
-	csoundDestroyMessageBuffer :: proc(csound: ^CSOUND) ---
+	DestroyMessageBuffer :: proc(csound: ^CSOUND) ---
 
 	/**
 	* Stores a pointer to the specified channel of the bus in *p,
@@ -1297,7 +1300,7 @@ foreign lib {
 	* examples.  Optionally, use the channel get/set functions
 	* provided below, which are threadsafe by default.
 	*/
-	csoundGetChannelPtr :: proc(_: ^CSOUND, p: ^^i32, name: cstring, type: i32) -> i32 ---
+	GetChannelPtr :: proc(_: ^CSOUND, p: ^^i32, name: cstring, type: i32) -> i32 ---
 
 	/**
 	* Returns a list of allocated channels in *lst. A controlChannelInfo_t
@@ -1309,12 +1312,12 @@ foreign lib {
 	* with csoundDeleteChannelList(). The name pointers may become invalid
 	* after calling csoundReset().
 	*/
-	csoundListChannels :: proc(_: ^CSOUND, lst: ^^controlChannelInfo_t) -> i32 ---
+	ListChannels :: proc(_: ^CSOUND, lst: ^^controlChannelInfo_t) -> i32 ---
 
 	/**
 	* Releases a channel list previously returned by csoundListChannels().
 	*/
-	csoundDeleteChannelList :: proc(_: ^CSOUND, lst: ^controlChannelInfo_t) ---
+	DeleteChannelList :: proc(_: ^CSOUND, lst: ^controlChannelInfo_t) ---
 
 	/**
 	* Set parameters hints for a control channel. These hints have no internal
@@ -1325,7 +1328,7 @@ foreign lib {
 	*                  or the specified parameters are invalid
 	*   CSOUND_MEMORY: could not allocate memory
 	*/
-	csoundSetControlChannelHints :: proc(_: ^CSOUND, name: cstring, hints: controlChannelHints_t) -> i32 ---
+	SetControlChannelHints :: proc(_: ^CSOUND, name: cstring, hints: controlChannelHints_t) -> i32 ---
 
 	/**
 	* Returns special parameters (assuming there are any) of a control channel,
@@ -1339,7 +1342,7 @@ foreign lib {
 	* The return value is zero if the channel exists and is a control
 	* channel, otherwise, an error code is returned.
 	*/
-	csoundGetControlChannelHints :: proc(_: ^CSOUND, name: cstring, hints: ^controlChannelHints_t) -> i32 ---
+	GetControlChannelHints :: proc(_: ^CSOUND, name: cstring, hints: ^controlChannelHints_t) -> i32 ---
 
 	/**
 	* Recovers a pointer to a lock for the specified channel called 'name'.
@@ -1347,43 +1350,43 @@ foreign lib {
 	* and csoundSpinUnLock() functions.
 	* @returns the address of the lock or NULL if the channel does not exist
 	*/
-	csoundGetChannelLock :: proc(_: ^CSOUND, name: cstring) -> ^i32 ---
+	GetChannelLock :: proc(_: ^CSOUND, name: cstring) -> ^i32 ---
 
 	/**
 	* retrieves the value of control channel identified by *name.
 	* If the err argument is not NULL, the error (or success) code
 	* finding or accessing the channel is stored in it.
 	*/
-	csoundGetControlChannel :: proc(csound: ^CSOUND, name: cstring, err: ^i32) -> i32 ---
+	GetControlChannel :: proc(csound: ^CSOUND, name: cstring, err: ^i32) -> i32 ---
 
 	/**
 	* sets the value of control channel identified by *name
 	*/
-	csoundSetControlChannel :: proc(csound: ^CSOUND, name: cstring, val: i32) ---
+	SetControlChannel :: proc(csound: ^CSOUND, name: cstring, val: i32) ---
 
 	/**
 	* copies the audio channel identified by *name into array
 	* *samples which should contain enough memory for ksmps MYFLTs
 	*/
-	csoundGetAudioChannel :: proc(csound: ^CSOUND, name: cstring, samples: ^i32) ---
+	GetAudioChannel :: proc(csound: ^CSOUND, name: cstring, samples: ^i32) ---
 
 	/**
 	* sets the audio channel identified by *name with data from array
 	* *samples which should contain at least ksmps MYFLTs
 	*/
-	csoundSetAudioChannel :: proc(csound: ^CSOUND, name: cstring, samples: ^i32) ---
+	SetAudioChannel :: proc(csound: ^CSOUND, name: cstring, samples: ^i32) ---
 
 	/**
 	* copies the string channel identified by *name into *string
 	* which should contain enough memory for the string
 	* (see csoundGetChannelDatasize() below)
 	*/
-	csoundGetStringChannel :: proc(csound: ^CSOUND, name: cstring, _string: cstring) ---
+	GetStringChannel :: proc(csound: ^CSOUND, name: cstring, _string: cstring) ---
 
 	/**
 	* sets the string channel identified by *name with *string
 	*/
-	csoundSetStringChannel :: proc(csound: ^CSOUND, name: cstring, _string: cstring) ---
+	SetStringChannel :: proc(csound: ^CSOUND, name: cstring, _string: cstring) ---
 
 	/**
 	* returns the size of data stored in a channel; for string channels
@@ -1392,15 +1395,15 @@ foreign lib {
 	* this function can be called to get the space required for
 	* csoundGetStringChannel()
 	*/
-	csoundGetChannelDatasize :: proc(csound: ^CSOUND, name: cstring) -> i32 ---
+	GetChannelDatasize :: proc(csound: ^CSOUND, name: cstring) -> i32 ---
 
 	/** Sets the function which will be called whenever the invalue opcode
 	* is used. */
-	csoundSetInputChannelCallback :: proc(csound: ^CSOUND, inputChannelCalback: channelCallback_t) ---
+	SetInputChannelCallback :: proc(csound: ^CSOUND, inputChannelCalback: channelCallback_t) ---
 
 	/** Sets the function which will be called whenever the outvalue opcode
 	* is used. */
-	csoundSetOutputChannelCallback :: proc(csound: ^CSOUND, outputChannelCalback: channelCallback_t) ---
+	SetOutputChannelCallback :: proc(csound: ^CSOUND, outputChannelCalback: channelCallback_t) ---
 
 	/**
 	* Sends a PVSDATEX fin to the pvsin opcode (f-rate) for channel 'name'.
@@ -1408,7 +1411,7 @@ foreign lib {
 	* fsig framesizes are incompatible.
 	* CSOUND_MEMORY if there is not enough memory to extend the bus.
 	*/
-	csoundSetPvsChannel :: proc(_: ^CSOUND, fin: ^PVSDATEXT, name: cstring) -> i32 ---
+	SetPvsChannel :: proc(_: ^CSOUND, fin: ^PVSDATEXT, name: cstring) -> i32 ---
 
 	/**
 	* Receives a PVSDAT fout from the pvsout opcode (f-rate) at channel 'name'
@@ -1416,7 +1419,7 @@ foreign lib {
 	* if fsig framesizes are incompatible.
 	* CSOUND_MEMORY if there is not enough memory to extend the bus
 	*/
-	csoundGetPvsChannel :: proc(csound: ^CSOUND, fout: ^PVSDATEXT, name: cstring) -> i32 ---
+	GetPvsChannel :: proc(csound: ^CSOUND, fout: ^PVSDATEXT, name: cstring) -> i32 ---
 
 	/**
 	* Send a new score event. 'type' is the score event type ('a', 'i', 'q',
@@ -1425,35 +1428,35 @@ foreign lib {
 	* floats with all the pfields for this event, starting with the p1 value
 	* specified in pFields[0].
 	*/
-	csoundScoreEvent :: proc(_: ^CSOUND, type: i8, pFields: ^i32, numFields: c.long) -> i32 ---
+	ScoreEvent :: proc(_: ^CSOUND, type: i8, pFields: ^i32, numFields: c.long) -> i32 ---
 
 	/**
 	*  Asynchronous version of csoundScoreEvent().
 	*/
-	csoundScoreEventAsync :: proc(_: ^CSOUND, type: i8, pFields: ^i32, numFields: c.long) ---
+	ScoreEventAsync :: proc(_: ^CSOUND, type: i8, pFields: ^i32, numFields: c.long) ---
 
 	/**
 	* Like csoundScoreEvent(), this function inserts a score event, but
 	* at absolute time with respect to the start of performance, or from an
 	* offset set with time_ofs
 	*/
-	csoundScoreEventAbsolute :: proc(_: ^CSOUND, type: i8, pfields: ^i32, numFields: c.long, time_ofs: f64) -> i32 ---
+	ScoreEventAbsolute :: proc(_: ^CSOUND, type: i8, pfields: ^i32, numFields: c.long, time_ofs: f64) -> i32 ---
 
 	/**
 	*  Asynchronous version of csoundScoreEventAbsolute().
 	*/
-	csoundScoreEventAbsoluteAsync :: proc(_: ^CSOUND, type: i8, pfields: ^i32, numFields: c.long, time_ofs: f64) ---
+	ScoreEventAbsoluteAsync :: proc(_: ^CSOUND, type: i8, pfields: ^i32, numFields: c.long, time_ofs: f64) ---
 
 	/**
 	* Input a NULL-terminated string (as if from a console),
 	* used for line events.
 	*/
-	csoundInputMessage :: proc(_: ^CSOUND, message: cstring) ---
+	InputMessage :: proc(_: ^CSOUND, message: cstring) ---
 
 	/**
 	* Asynchronous version of csoundInputMessage().
 	*/
-	csoundInputMessageAsync :: proc(_: ^CSOUND, message: cstring) ---
+	InputMessageAsync :: proc(_: ^CSOUND, message: cstring) ---
 
 	/**
 	* Kills off one or more running instances of an instrument identified
@@ -1465,7 +1468,7 @@ foreign lib {
 	* 8: only turnoff notes with indefinite duration (p3 < 0 or MIDI)
 	* allow_release, if non-zero, the killed instances are allowed to release.
 	*/
-	csoundKillInstance :: proc(csound: ^CSOUND, instr: i32, instrName: cstring, mode: i32, allow_release: i32) -> i32 ---
+	KillInstance :: proc(csound: ^CSOUND, instr: i32, instrName: cstring, mode: i32, allow_release: i32) -> i32 ---
 
 	/**
 	* Register a function to be called once in every control period
@@ -1479,7 +1482,7 @@ foreign lib {
 	* The callbacks are cleared on csoundCleanup().
 	* Returns zero on success.
 	*/
-	csoundRegisterSenseEventCallback :: proc(_: ^CSOUND, func: proc "c" (^CSOUND, rawptr), userData: rawptr) -> i32 ---
+	RegisterSenseEventCallback :: proc(_: ^CSOUND, func: proc "c" (^CSOUND, rawptr), userData: rawptr) -> i32 ---
 
 	/**
 	* Set the ASCII code of the most recent key pressed.
@@ -1487,7 +1490,7 @@ foreign lib {
 	* for returning keyboard events is not set (see
 	* csoundRegisterKeyboardCallback()).
 	*/
-	csoundKeyPress :: proc(_: ^CSOUND, _c: i8) ---
+	KeyPress :: proc(_: ^CSOUND, _c: i8) ---
 
 	/**
 	* Registers general purpose callback functions that will be called to query
@@ -1527,12 +1530,12 @@ foreign lib {
 	* positive if the callback was ignored (for example because the type is
 	* not known).
 	*/
-	csoundRegisterKeyboardCallback :: proc(_: ^CSOUND, func: proc "c" (userData: rawptr, p: rawptr, type: u32) -> i32, userData: rawptr, type: u32) -> i32 ---
+	RegisterKeyboardCallback :: proc(_: ^CSOUND, func: proc "c" (userData: rawptr, p: rawptr, type: u32) -> i32, userData: rawptr, type: u32) -> i32 ---
 
 	/**
 	* Removes a callback previously set with csoundRegisterKeyboardCallback().
 	*/
-	csoundRemoveKeyboardCallback :: proc(csound: ^CSOUND, func: proc "c" (rawptr, rawptr, u32) -> i32) ---
+	RemoveKeyboardCallback :: proc(csound: ^CSOUND, func: proc "c" (rawptr, rawptr, u32) -> i32) ---
 
 	/** @}*/
 	/** @defgroup TABLE Tables
@@ -1542,43 +1545,43 @@ foreign lib {
 	* Returns the length of a function table (not including the guard point),
 	* or -1 if the table does not exist.
 	*/
-	csoundTableLength :: proc(_: ^CSOUND, table: i32) -> i32 ---
+	TableLength :: proc(_: ^CSOUND, table: i32) -> i32 ---
 
 	/**
 	* Returns the value of a slot in a function table.
 	* The table number and index are assumed to be valid.
 	*/
-	csoundTableGet :: proc(_: ^CSOUND, table: i32, index: i32) -> i32 ---
+	TableGet :: proc(_: ^CSOUND, table: i32, index: i32) -> i32 ---
 
 	/**
 	* Sets the value of a slot in a function table.
 	* The table number and index are assumed to be valid.
 	*/
-	csoundTableSet :: proc(_: ^CSOUND, table: i32, index: i32, value: i32) ---
+	TableSet :: proc(_: ^CSOUND, table: i32, index: i32, value: i32) ---
 
 	/**
 	* Copy the contents of a function table into a supplied array *dest
 	* The table number is assumed to be valid, and the destination needs to
 	* have sufficient space to receive all the function table contents.
 	*/
-	csoundTableCopyOut :: proc(csound: ^CSOUND, table: i32, dest: ^i32) ---
+	TableCopyOut :: proc(csound: ^CSOUND, table: i32, dest: ^i32) ---
 
 	/**
 	* Asynchronous version of csoundTableCopyOut()
 	*/
-	csoundTableCopyOutAsync :: proc(csound: ^CSOUND, table: i32, dest: ^i32) ---
+	TableCopyOutAsync :: proc(csound: ^CSOUND, table: i32, dest: ^i32) ---
 
 	/**
 	* Copy the contents of an array *src into a given function table
 	* The table number is assumed to be valid, and the table needs to
 	* have sufficient space to receive all the array contents.
 	*/
-	csoundTableCopyIn :: proc(csound: ^CSOUND, table: i32, src: ^i32) ---
+	TableCopyIn :: proc(csound: ^CSOUND, table: i32, src: ^i32) ---
 
 	/**
 	* Asynchronous version of csoundTableCopyIn()
 	*/
-	csoundTableCopyInAsync :: proc(csound: ^CSOUND, table: i32, src: ^i32) ---
+	TableCopyInAsync :: proc(csound: ^CSOUND, table: i32, src: ^i32) ---
 
 	/**
 	* Stores pointer to function table 'tableNum' in *tablePtr,
@@ -1586,7 +1589,7 @@ foreign lib {
 	* If the table does not exist, *tablePtr is set to NULL and
 	* -1 is returned.
 	*/
-	csoundGetTable :: proc(_: ^CSOUND, tablePtr: ^^i32, tableNum: i32) -> i32 ---
+	GetTable :: proc(_: ^CSOUND, tablePtr: ^^i32, tableNum: i32) -> i32 ---
 
 	/**
 	* Stores pointer to the arguments used to generate
@@ -1597,20 +1600,20 @@ foreign lib {
 	* NB: the argument list starts with the GEN number and is followed by
 	* its parameters. eg. f 1 0 1024 10 1 0.5  yields the list {10.0,1.0,0.5}
 	*/
-	csoundGetTableArgs :: proc(csound: ^CSOUND, argsPtr: ^^i32, tableNum: i32) -> i32 ---
+	GetTableArgs :: proc(csound: ^CSOUND, argsPtr: ^^i32, tableNum: i32) -> i32 ---
 
 	/**
 	* Checks if a given GEN number num is a named GEN
 	* if so, it returns the string length (excluding terminating NULL char)
 	* Otherwise it returns 0.
 	*/
-	csoundIsNamedGEN :: proc(csound: ^CSOUND, num: i32) -> i32 ---
+	IsNamedGEN :: proc(csound: ^CSOUND, num: i32) -> i32 ---
 
 	/**
 	* Gets the GEN name from a number num, if this is a named GEN
 	* The final parameter is the max len of the string (excluding termination)
 	*/
-	csoundGetNamedGEN :: proc(csound: ^CSOUND, num: i32, name: cstring, len: i32) ---
+	GetNamedGEN :: proc(csound: ^CSOUND, num: i32, name: cstring, len: i32) ---
 
 	/** @}*/
 	/** @defgroup TABLEDISPLAY Function table display
@@ -1620,32 +1623,32 @@ foreign lib {
 	* Tells Csound whether external graphic table display is supported.
 	* Returns the previously set value (initially zero).
 	*/
-	csoundSetIsGraphable :: proc(_: ^CSOUND, isGraphable: i32) -> i32 ---
+	SetIsGraphable :: proc(_: ^CSOUND, isGraphable: i32) -> i32 ---
 
 	/**
 	* Called by external software to set Csound's MakeGraph function.
 	*/
-	csoundSetMakeGraphCallback :: proc(_: ^CSOUND, makeGraphCallback_: proc "c" (_: ^CSOUND, windat: ^WINDAT, name: cstring)) ---
+	SetMakeGraphCallback :: proc(_: ^CSOUND, makeGraphCallback_: proc "c" (_: ^CSOUND, windat: ^WINDAT, name: cstring)) ---
 
 	/**
 	* Called by external software to set Csound's DrawGraph function.
 	*/
-	csoundSetDrawGraphCallback :: proc(_: ^CSOUND, drawGraphCallback_: proc "c" (_: ^CSOUND, windat: ^WINDAT)) ---
+	SetDrawGraphCallback :: proc(_: ^CSOUND, drawGraphCallback_: proc "c" (_: ^CSOUND, windat: ^WINDAT)) ---
 
 	/**
 	* Called by external software to set Csound's KillGraph function.
 	*/
-	csoundSetKillGraphCallback :: proc(_: ^CSOUND, killGraphCallback_: proc "c" (_: ^CSOUND, windat: ^WINDAT)) ---
+	SetKillGraphCallback :: proc(_: ^CSOUND, killGraphCallback_: proc "c" (_: ^CSOUND, windat: ^WINDAT)) ---
 
 	/**
 	* Called by external software to set Csound's ExitGraph function.
 	*/
-	csoundSetExitGraphCallback :: proc(_: ^CSOUND, exitGraphCallback_: proc "c" (^CSOUND) -> i32) ---
+	SetExitGraphCallback :: proc(_: ^CSOUND, exitGraphCallback_: proc "c" (^CSOUND) -> i32) ---
 
 	/**
 	* Finds the list of named gens
 	*/
-	csoundGetNamedGens :: proc(^CSOUND) -> rawptr ---
+	GetNamedGens :: proc(^CSOUND) -> rawptr ---
 
 	/**
 	* Gets an alphabetically sorted list of all opcodes.
@@ -1653,12 +1656,12 @@ foreign lib {
 	* Returns the number of opcodes, or a negative error code on failure.
 	* Make sure to call csoundDisposeOpcodeList() when done with the list.
 	*/
-	csoundNewOpcodeList :: proc(_: ^CSOUND, opcodelist: ^^opcodeListEntry) -> i32 ---
+	NewOpcodeList :: proc(_: ^CSOUND, opcodelist: ^^opcodeListEntry) -> i32 ---
 
 	/**
 	* Releases an opcode list.
 	*/
-	csoundDisposeOpcodeList :: proc(_: ^CSOUND, opcodelist: ^opcodeListEntry) ---
+	DisposeOpcodeList :: proc(_: ^CSOUND, opcodelist: ^opcodeListEntry) ---
 
 	/**
 	* Appends an opcode implemented by external software
@@ -1667,7 +1670,7 @@ foreign lib {
 	* and the parameters are copied into the new slot.
 	* Returns zero on success.
 	*/
-	csoundAppendOpcode :: proc(_: ^CSOUND, opname: cstring, dsblksiz: i32, flags: i32, thread: i32, outypes: cstring, intypes: cstring, iopadr: proc "c" (^CSOUND, rawptr) -> i32, kopadr: proc "c" (^CSOUND, rawptr) -> i32, aopadr: proc "c" (^CSOUND, rawptr) -> i32) -> i32 ---
+	AppendOpcode :: proc(_: ^CSOUND, opname: cstring, dsblksiz: i32, flags: i32, thread: i32, outypes: cstring, intypes: cstring, iopadr: proc "c" (^CSOUND, rawptr) -> i32, kopadr: proc "c" (^CSOUND, rawptr) -> i32, aopadr: proc "c" (^CSOUND, rawptr) -> i32) -> i32 ---
 
 	/**
 	* Called by external software to set a function for checking system
@@ -1678,7 +1681,7 @@ foreign lib {
 	* this function to do any kind of updating during the operation.
 	* Returns an 'OK to continue' boolean.
 	*/
-	csoundSetYieldCallback :: proc(_: ^CSOUND, yieldCallback_: proc "c" (^CSOUND) -> i32) ---
+	SetYieldCallback :: proc(_: ^CSOUND, yieldCallback_: proc "c" (^CSOUND) -> i32) ---
 
 	/**
 	* Creates and starts a new thread of execution.
@@ -1686,7 +1689,7 @@ foreign lib {
 	* or NULL for failure.
 	* The userdata pointer is passed to the thread routine.
 	*/
-	csoundCreateThread :: proc(threadRoutine: proc "c" (rawptr) -> c.uintptr_t, userdata: rawptr) -> rawptr ---
+	CreateThread :: proc(threadRoutine: proc "c" (rawptr) -> c.uintptr_t, userdata: rawptr) -> rawptr ---
 
 	/**
 	* Creates and starts a new thread of execution
@@ -1695,7 +1698,7 @@ foreign lib {
 	* or NULL for failure.
 	* The userdata pointer is passed to the thread routine.
 	*/
-	csoundCreateThread2 :: proc(threadRoutine: proc "c" (rawptr) -> c.uintptr_t, stack: u32, userdata: rawptr) -> rawptr ---
+	CreateThread2 :: proc(threadRoutine: proc "c" (rawptr) -> c.uintptr_t, stack: u32, userdata: rawptr) -> rawptr ---
 
 	/**
 	* Returns the ID of the currently executing thread,
@@ -1706,19 +1709,19 @@ foreign lib {
 	* as a pointer. The pointed to values should be compared,
 	* and the user must free the pointer after use.
 	*/
-	csoundGetCurrentThreadId :: proc() -> rawptr ---
+	GetCurrentThreadId :: proc() -> rawptr ---
 
 	/**
 	* Waits until the indicated thread's routine has finished.
 	* Returns the value returned by the thread routine.
 	*/
-	csoundJoinThread :: proc(thread: rawptr) -> c.uintptr_t ---
+	JoinThread :: proc(thread: rawptr) -> c.uintptr_t ---
 
 	/**
 	* Creates and returns a monitor object, or NULL if not successful.
 	* The object is initially in signaled (notified) state.
 	*/
-	csoundCreateThreadLock :: proc() -> rawptr ---
+	CreateThreadLock :: proc() -> rawptr ---
 
 	/**
 	* Waits on the indicated monitor object for the indicated period.
@@ -1728,24 +1731,24 @@ foreign lib {
 	* If 'milliseconds' is zero and the object is not notified, the function
 	* will return immediately with a non-zero status.
 	*/
-	csoundWaitThreadLock :: proc(lock: rawptr, milliseconds: c.size_t) -> i32 ---
+	WaitThreadLock :: proc(lock: rawptr, milliseconds: c.size_t) -> i32 ---
 
 	/**
 	* Waits on the indicated monitor object until it is notified.
 	* This function is similar to csoundWaitThreadLock() with an infinite
 	* wait time, but may be more efficient.
 	*/
-	csoundWaitThreadLockNoTimeout :: proc(lock: rawptr) ---
+	WaitThreadLockNoTimeout :: proc(lock: rawptr) ---
 
 	/**
 	* Notifies the indicated monitor object.
 	*/
-	csoundNotifyThreadLock :: proc(lock: rawptr) ---
+	NotifyThreadLock :: proc(lock: rawptr) ---
 
 	/**
 	* Destroys the indicated monitor object.
 	*/
-	csoundDestroyThreadLock :: proc(lock: rawptr) ---
+	DestroyThreadLock :: proc(lock: rawptr) ---
 
 	/**
 	* Creates and returns a mutex object, or NULL if not successful.
@@ -1760,14 +1763,14 @@ foreign lib {
 	* Note: the handles returned by csoundCreateThreadLock() and
 	* csoundCreateMutex() are not compatible.
 	*/
-	csoundCreateMutex :: proc(isRecursive: i32) -> rawptr ---
+	CreateMutex :: proc(isRecursive: i32) -> rawptr ---
 
 	/**
 	* Acquires the indicated mutex object; if it is already in use by
 	* another thread, the function waits until the mutex is released by
 	* the other thread.
 	*/
-	csoundLockMutex :: proc(mutex_: rawptr) ---
+	LockMutex :: proc(mutex_: rawptr) ---
 
 	/**
 	* Acquires the indicated mutex object and returns zero, unless it is
@@ -1776,7 +1779,7 @@ foreign lib {
 	* available.
 	* Note: this function may be unimplemented on Windows.
 	*/
-	csoundLockMutexNoWait :: proc(mutex_: rawptr) -> i32 ---
+	LockMutexNoWait :: proc(mutex_: rawptr) -> i32 ---
 
 	/**
 	* Releases the indicated mutex object, which should be owned by
@@ -1784,47 +1787,47 @@ foreign lib {
 	* undefined. A recursive mutex needs to be unlocked as many times
 	* as it was locked previously.
 	*/
-	csoundUnlockMutex :: proc(mutex_: rawptr) ---
+	UnlockMutex :: proc(mutex_: rawptr) ---
 
 	/**
 	* Destroys the indicated mutex object. Destroying a mutex that
 	* is currently owned by a thread results in undefined behavior.
 	*/
-	csoundDestroyMutex :: proc(mutex_: rawptr) ---
+	DestroyMutex :: proc(mutex_: rawptr) ---
 
 	/**
 	* Create a Thread Barrier. Max value parameter should be equal to
 	* number of child threads using the barrier plus one for the
 	* master thread */
-	csoundCreateBarrier :: proc(max: u32) -> rawptr ---
+	CreateBarrier :: proc(max: u32) -> rawptr ---
 
 	/**
 	* Destroy a Thread Barrier.
 	*/
-	csoundDestroyBarrier :: proc(barrier: rawptr) -> i32 ---
+	DestroyBarrier :: proc(barrier: rawptr) -> i32 ---
 
 	/**
 	* Wait on the thread barrier.
 	*/
-	csoundWaitBarrier :: proc(barrier: rawptr) -> i32 ---
+	WaitBarrier :: proc(barrier: rawptr) -> i32 ---
 
 	/** Creates a conditional variable */
-	csoundCreateCondVar :: proc() -> rawptr ---
+	CreateCondVar :: proc() -> rawptr ---
 
 	/** Waits up on a conditional variable and mutex */
-	csoundCondWait :: proc(condVar: rawptr, mutex: rawptr) ---
+	CondWait :: proc(condVar: rawptr, mutex: rawptr) ---
 
 	/** Signals a conditional variable */
-	csoundCondSignal :: proc(condVar: rawptr) ---
+	CondSignal :: proc(condVar: rawptr) ---
 
 	/** Destroys a conditional variable */
-	csoundDestroyCondVar :: proc(condVar: rawptr) ---
+	DestroyCondVar :: proc(condVar: rawptr) ---
 
 	/**
 	* Waits for at least the specified number of milliseconds,
 	* yielding the CPU to other threads.
 	*/
-	csoundSleep :: proc(milliseconds: c.size_t) ---
+	Sleep :: proc(milliseconds: c.size_t) ---
 
 	/**
 	* If the spinlock is not locked, lock it and return;
@@ -1848,23 +1851,23 @@ foreign lib {
 	* }
 	* @endcode
 	*/
-	csoundSpinLockInit :: proc(spinlock: ^i32) -> i32 ---
+	SpinLockInit :: proc(spinlock: ^i32) -> i32 ---
 
 	/**
 	* Locks the spinlock
 	*/
-	csoundSpinLock :: proc(spinlock: ^i32) ---
+	SpinLock :: proc(spinlock: ^i32) ---
 
 	/**
 	* Tries the lock, returns CSOUND_SUCCESS if lock could be acquired,
 	CSOUND_ERROR, otherwise.
 	*/
-	csoundSpinTryLock :: proc(spinlock: ^i32) -> i32 ---
+	SpinTryLock :: proc(spinlock: ^i32) -> i32 ---
 
 	/**
 	* Unlocks the spinlock
 	*/
-	csoundSpinUnLock :: proc(spinlock: ^i32) ---
+	SpinUnLock :: proc(spinlock: ^i32) ---
 
 	/**
 	* Runs an external command with the arguments specified in 'argv'.
@@ -1878,29 +1881,29 @@ foreign lib {
 	* 255), otherwise it is the PID of the newly created process.
 	* On error, a negative value is returned.
 	*/
-	csoundRunCommand :: proc(argv: ^cstring, noWait: i32) -> c.long ---
+	RunCommand :: proc(argv: ^cstring, noWait: i32) -> c.long ---
 
 	/**
 	* Initialise a timer structure.
 	*/
-	csoundInitTimerStruct :: proc(^RTCLOCK) ---
+	InitTimerStruct :: proc(^RTCLOCK) ---
 
 	/**
 	* Return the elapsed real time (in seconds) since the specified timer
 	* structure was initialised.
 	*/
-	csoundGetRealTime :: proc(^RTCLOCK) -> f64 ---
+	GetRealTime :: proc(^RTCLOCK) -> f64 ---
 
 	/**
 	* Return the elapsed CPU time (in seconds) since the specified timer
 	* structure was initialised.
 	*/
-	csoundGetCPUTime :: proc(^RTCLOCK) -> f64 ---
+	GetCPUTime :: proc(^RTCLOCK) -> f64 ---
 
 	/**
 	* Return a 32-bit unsigned integer to be used as seed from current time.
 	*/
-	csoundGetRandomSeedFromTime :: proc() -> i32 ---
+	GetRandomSeedFromTime :: proc() -> i32 ---
 
 	/**
 	* Set language to 'lang_code' (lang_code can be for example
@@ -1914,7 +1917,7 @@ foreign lib {
 	* from the directory specified by the CSSTRNGS environment
 	* variable.
 	*/
-	csoundSetLanguage :: proc(lang_code: i32) ---
+	SetLanguage :: proc(lang_code: i32) ---
 
 	/**
 	* Get pointer to the value of environment variable 'name', searching
@@ -1923,7 +1926,7 @@ foreign lib {
 	* If 'csound' is not NULL, should be called after csoundCompile().
 	* Return value is NULL if the variable is not set.
 	*/
-	csoundGetEnv :: proc(csound: ^CSOUND, name: cstring) -> cstring ---
+	GetEnv :: proc(csound: ^CSOUND, name: cstring) -> cstring ---
 
 	/**
 	* Set the global value of environment variable 'name' to 'value',
@@ -1932,7 +1935,7 @@ foreign lib {
 	* are active.
 	* Returns zero on success.
 	*/
-	csoundSetGlobalEnv :: proc(name: cstring, value: cstring) -> i32 ---
+	SetGlobalEnv :: proc(name: cstring, value: cstring) -> i32 ---
 
 	/**
 	* Allocate nbytes bytes of memory that can be accessed later by calling
@@ -1942,13 +1945,13 @@ foreign lib {
 	* parameters (zero nbytes, invalid or already used name), or
 	* CSOUND_MEMORY if there is not enough memory.
 	*/
-	csoundCreateGlobalVariable :: proc(_: ^CSOUND, name: cstring, nbytes: c.size_t) -> i32 ---
+	CreateGlobalVariable :: proc(_: ^CSOUND, name: cstring, nbytes: c.size_t) -> i32 ---
 
 	/**
 	* Get pointer to space allocated with the name "name".
 	* Returns NULL if the specified name is not defined.
 	*/
-	csoundQueryGlobalVariable :: proc(_: ^CSOUND, name: cstring) -> rawptr ---
+	QueryGlobalVariable :: proc(_: ^CSOUND, name: cstring) -> rawptr ---
 
 	/**
 	* This function is the same as csoundQueryGlobalVariable(), except the
@@ -1956,14 +1959,14 @@ foreign lib {
 	* Faster, but may crash or return an invalid pointer if 'name' is
 	* not defined.
 	*/
-	csoundQueryGlobalVariableNoCheck :: proc(_: ^CSOUND, name: cstring) -> rawptr ---
+	QueryGlobalVariableNoCheck :: proc(_: ^CSOUND, name: cstring) -> rawptr ---
 
 	/**
 	* Free memory allocated for "name" and remove "name" from the database.
 	* Return value is CSOUND_SUCCESS on success, or CSOUND_ERROR if the name is
 	* not defined.
 	*/
-	csoundDestroyGlobalVariable :: proc(_: ^CSOUND, name: cstring) -> i32 ---
+	DestroyGlobalVariable :: proc(_: ^CSOUND, name: cstring) -> i32 ---
 
 	/**
 	* Run utility with the specified name and command line arguments.
@@ -1971,7 +1974,7 @@ foreign lib {
 	* Use csoundReset() to clean up after calling this function.
 	* Returns zero if the utility was run successfully.
 	*/
-	csoundRunUtility :: proc(_: ^CSOUND, name: cstring, argc: i32, argv: ^cstring) -> i32 ---
+	RunUtility :: proc(_: ^CSOUND, name: cstring, argc: i32, argv: ^cstring) -> i32 ---
 
 	/**
 	* Returns a NULL terminated list of registered utility names.
@@ -1980,19 +1983,19 @@ foreign lib {
 	* changed or freed.
 	* The return value may be NULL in case of an error.
 	*/
-	csoundListUtilities :: proc(^CSOUND) -> ^cstring ---
+	ListUtilities :: proc(^CSOUND) -> ^cstring ---
 
 	/**
 	* Releases an utility list previously returned by csoundListUtilities().
 	*/
-	csoundDeleteUtilityList :: proc(_: ^CSOUND, lst: ^cstring) ---
+	DeleteUtilityList :: proc(_: ^CSOUND, lst: ^cstring) ---
 
 	/**
 	* Get utility description.
 	* Returns NULL if the utility was not found, or it has no description,
 	* or an error occured.
 	*/
-	csoundGetUtilityDescription :: proc(_: ^CSOUND, utilName: cstring) -> cstring ---
+	GetUtilityDescription :: proc(_: ^CSOUND, utilName: cstring) -> cstring ---
 
 	/**
 	* Simple linear congruential random number generator:
@@ -2001,20 +2004,20 @@ foreign lib {
 	* Returns the next number from the pseudo-random sequence,
 	* in the range 1 to 2147483646.
 	*/
-	csoundRand31 :: proc(seedVal: ^i32) -> i32 ---
+	Rand31 :: proc(seedVal: ^i32) -> i32 ---
 
 	/**
 	* Initialise Mersenne Twister (MT19937) random number generator,
 	* using 'keyLength' unsigned 32 bit values from 'initKey' as seed.
 	* If the array is NULL, the length parameter is used for seeding.
 	*/
-	csoundSeedRandMT :: proc(p: ^CsoundRandMTState, initKey: ^i32, keyLength: i32) ---
+	SeedRandMT :: proc(p: ^CsoundRandMTState, initKey: ^i32, keyLength: i32) ---
 
 	/**
 	* Returns next random number from MT19937 generator.
 	* The PRNG must be initialised first by calling csoundSeedRandMT().
 	*/
-	csoundRandMT :: proc(p: ^CsoundRandMTState) -> i32 ---
+	RandMT :: proc(p: ^CsoundRandMTState) -> i32 ---
 
 	/**
 	* Create circular buffer with numelem number of elements. The
@@ -2023,7 +2026,7 @@ foreign lib {
 	* void *rb = csoundCreateCircularBuffer(csound, 1024, sizeof(MYFLT));
 	*@endcode
 	*/
-	csoundCreateCircularBuffer :: proc(csound: ^CSOUND, numelem: i32, elemsize: i32) -> rawptr ---
+	CreateCircularBuffer :: proc(csound: ^CSOUND, numelem: i32, elemsize: i32) -> rawptr ---
 
 	/**
 	* Read from circular buffer
@@ -2034,7 +2037,7 @@ foreign lib {
 	* @param items number of samples to be read
 	* @returns the actual number of items read (0 <= n <= items)
 	*/
-	csoundReadCircularBuffer :: proc(csound: ^CSOUND, circular_buffer: rawptr, out: rawptr, items: i32) -> i32 ---
+	ReadCircularBuffer :: proc(csound: ^CSOUND, circular_buffer: rawptr, out: rawptr, items: i32) -> i32 ---
 
 	/**
 	* Read from circular buffer without removing them from the buffer.
@@ -2044,7 +2047,7 @@ foreign lib {
 	* @param items number of samples to be read
 	* @returns the actual number of items read (0 <= n <= items)
 	*/
-	csoundPeekCircularBuffer :: proc(csound: ^CSOUND, circular_buffer: rawptr, out: rawptr, items: i32) -> i32 ---
+	PeekCircularBuffer :: proc(csound: ^CSOUND, circular_buffer: rawptr, out: rawptr, items: i32) -> i32 ---
 
 	/**
 	* Write to circular buffer
@@ -2055,7 +2058,7 @@ foreign lib {
 	* @param items number of samples to write
 	* @returns the actual number of items written (0 <= n <= items)
 	*/
-	csoundWriteCircularBuffer :: proc(csound: ^CSOUND, p: rawptr, inp: rawptr, items: i32) -> i32 ---
+	WriteCircularBuffer :: proc(csound: ^CSOUND, p: rawptr, inp: rawptr, items: i32) -> i32 ---
 
 	/**
 	* Empty circular buffer of any remaining data. This function should only be
@@ -2063,26 +2066,26 @@ foreign lib {
 	* @param csound This value is currently ignored.
 	* @param p pointer to an existing circular buffer
 	*/
-	csoundFlushCircularBuffer :: proc(csound: ^CSOUND, p: rawptr) ---
+	FlushCircularBuffer :: proc(csound: ^CSOUND, p: rawptr) ---
 
 	/**
 	* Free circular buffer
 	*/
-	csoundDestroyCircularBuffer :: proc(csound: ^CSOUND, circularbuffer: rawptr) ---
+	DestroyCircularBuffer :: proc(csound: ^CSOUND, circularbuffer: rawptr) ---
 
 	/**
 	* Platform-independent function to load a shared library.
 	*/
-	csoundOpenLibrary :: proc(library: ^rawptr, libraryPath: cstring) -> i32 ---
+	OpenLibrary :: proc(library: ^rawptr, libraryPath: cstring) -> i32 ---
 
 	/**
 	* Platform-independent function to unload a shared library.
 	*/
-	csoundCloseLibrary :: proc(library: rawptr) -> i32 ---
+	CloseLibrary :: proc(library: rawptr) -> i32 ---
 
 	/**
 	* Platform-independent function to get a symbol address in a shared library.
 	*/
-	csoundGetLibrarySymbol :: proc(library: rawptr, symbolName: cstring) -> rawptr ---
+	GetLibrarySymbol :: proc(library: rawptr, symbolName: cstring) -> rawptr ---
 }
 
