@@ -2089,4 +2089,4 @@ foreign lib {
 	GetLibrarySymbol :: proc(library: rawptr, symbolName: cstring) -> rawptr ---
 }
 
-FILE :: rawptr
+FILE :: struct {}
