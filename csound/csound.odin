@@ -498,7 +498,7 @@ foreign lib {
 	* It returns CSOUND_SUCCESS on success and CSOUND_INITIALIZATION or other
 	* error code if it fails.
 	*/
-	InitializeCscore :: proc(_: ^CSOUND, insco: FILE, outsco: FILE) -> i32 ---
+	InitializeCscore :: proc(_: ^CSOUND, insco: ^FILE, outsco: ^FILE) -> i32 ---
 
 	/**
 	*  Read arguments, parse and compile an orchestra, read, process and
@@ -1164,7 +1164,7 @@ foreign lib {
 	* before calling this function, and csoundReset() should be called
 	* after sorting the score to clean up. On success, zero is returned.
 	*/
-	ScoreSort :: proc(_: ^CSOUND, inFile: FILE, outFile: FILE) -> i32 ---
+	ScoreSort :: proc(_: ^CSOUND, inFile: ^FILE, outFile: ^FILE) -> i32 ---
 
 	/**
 	* Extracts from 'inFile', controlled by 'extractFile', and writes
@@ -1173,7 +1173,7 @@ foreign lib {
 	* should be called after score extraction to clean up.
 	* The return value is zero on success.
 	*/
-	ScoreExtract :: proc(_: ^CSOUND, inFile: FILE, outFile: FILE, extractFile: FILE) -> i32 ---
+	ScoreExtract :: proc(_: ^CSOUND, inFile: ^FILE, outFile: ^FILE, extractFile: ^FILE) -> i32 ---
 
 	/**
 	* Displays an informational message.
