@@ -107,6 +107,7 @@ clang_defines = {
 	// "UFBX_REAL_IS_FLOAT" = "1"
 }
 
+// These need to be fixed manually, at the moment
 procedure_type_overrides = {
 	"InitializeCscore.insco" = "FILE"
 	"InitializeCscore.outsco" = "FILE"
