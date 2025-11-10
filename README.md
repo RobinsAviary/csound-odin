@@ -1,4 +1,4 @@
-# csound-odin
+# csound-odin (WIP)
 Odin bindings for [csound](https://github.com/csound/csound).
 
 A sound and music computing system.
