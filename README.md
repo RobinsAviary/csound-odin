@@ -10,6 +10,8 @@ The compiled version of csound in the repo is 6.18.1
 
 These bindings were generated with [odin-c-bindgen](https://github.com/karl-zylinski/odin-c-bindgen).
 
+Currently these bindings only support Windows. Feel free to open a PR or fork to add more support, though!
+
 ## How to use
 
 Put the `csound` folder in the `shared` directory of your Odin installation. This will make the library available for import globally via `shared:csound`.
