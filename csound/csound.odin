@@ -26,7 +26,9 @@ package csound
 
 import "core:c"
 
-foreign import lib "csound64.lib"
+when ODIN_OS == .Windows {
+	foreign import lib "windows/csound64.lib"
+}
 _ :: lib
 
 /**
