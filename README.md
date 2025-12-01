@@ -1,4 +1,4 @@
-# csound-odin (WIP)
+# csound-odin
 
 Odin bindings for [csound](https://github.com/csound/csound).
 
